@@ -53,6 +53,48 @@
     --radius-md: 12px;
     --radius-lg: 16px;
     --radius-full: 9999px;
+
+    /* Theme override fallbacks (Dark Mode defaults) */
+    --glow-opacity: 0.15;
+    --text-description: #e2e8f0;
+    --text-strong: #ffffff;
+    --bg-code: rgba(7, 10, 19, 0.5);
+    --bg-pre: rgba(7, 10, 19, 0.5);
+    --modal-backdrop: rgba(5, 8, 16, 0.75);
+    --bg-glass-modal: rgba(15, 23, 42, 0.85);
+    --bg-btn-card: rgba(255, 255, 255, 0.03);
+    --bg-btn-card-hover: rgba(255, 255, 255, 0.08);
+}
+
+/* Light Theme Variables Override */
+body.light-theme {
+    --bg-main: #f1f5f9; /* slate-100 */
+    --bg-glass: rgba(255, 255, 255, 0.75);
+    --bg-glass-hover: rgba(255, 255, 255, 0.85);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(15, 23, 42, 0.16);
+    
+    --primary: hsl(217, 91%, 55%);
+    --primary-glow: hsla(217, 91%, 55%, 0.12);
+    --primary-hover: hsl(217, 91%, 50%);
+    
+    --text-primary: #0f172a; /* slate-900 */
+    --text-secondary: #475569; /* slate-600 */
+    --text-muted: #64748b; /* slate-500 */
+    
+    --glow-opacity: 0.06;
+    --text-description: #334155; /* slate-700 */
+    --text-strong: #0f172a;
+    --bg-code: rgba(15, 23, 42, 0.05);
+    --bg-pre: rgba(15, 23, 42, 0.04);
+    
+    --modal-backdrop: rgba(15, 23, 42, 0.35);
+    --bg-glass-modal: rgba(255, 255, 255, 0.95);
+    
+    --bg-btn-card: rgba(15, 23, 42, 0.04);
+    --bg-btn-card-hover: rgba(15, 23, 42, 0.08);
+    
+    --shadow-main: 0 8px 32px 0 rgba(15, 23, 42, 0.08);
 }
 
 /* Base resets & structural styles */
@@ -89,7 +131,7 @@ body {
     position: absolute;
     border-radius: var(--radius-full);
     filter: blur(140px);
-    opacity: 0.15;
+    opacity: var(--glow-opacity, 0.15);
     mix-blend-mode: screen;
     animation: floatGlow 20s infinite alternate ease-in-out;
 }
@@ -625,7 +667,7 @@ body {
 .card-description {
     font-size: 0.95rem;
     line-height: 1.7;
-    color: #e2e8f0;
+    color: var(--text-description, #e2e8f0);
 }
 
 .card-description p {
@@ -652,22 +694,22 @@ body {
 
 .card-description strong {
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-strong, #ffffff);
 }
 
 /* Format tables, lists or code inside the parsed HTML content */
 .card-description code {
     font-family: 'Fira Code', monospace;
     font-size: 0.85rem;
-    background: rgba(7, 10, 19, 0.5);
+    background: var(--bg-code, rgba(7, 10, 19, 0.5));
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.05));
     color: #f472b6;
 }
 
 .card-description pre {
-    background: rgba(7, 10, 19, 0.5);
+    background: var(--bg-pre, rgba(7, 10, 19, 0.5));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 1rem;
@@ -732,7 +774,7 @@ body {
 }
 
 .btn-card-link {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-btn-card, rgba(255, 255, 255, 0.03));
     color: var(--text-secondary);
     border: 1px solid var(--border-color);
     font-size: 0.85rem;
@@ -748,7 +790,7 @@ body {
 }
 
 .btn-card-link:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--bg-btn-card-hover, rgba(255, 255, 255, 0.08));
     color: var(--text-primary);
     border-color: var(--border-hover);
 }
@@ -849,7 +891,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1000;
-    background-color: rgba(5, 8, 16, 0.75);
+    background-color: var(--modal-backdrop, rgba(5, 8, 16, 0.75));
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
@@ -866,12 +908,12 @@ body {
 }
 
 .modal-container {
-    background: rgba(15, 23, 42, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--bg-glass-modal, rgba(15, 23, 42, 0.85));
+    border: 1px solid var(--border-hover, rgba(255, 255, 255, 0.1));
     border-radius: var(--radius-lg);
     max-width: 600px;
     width: 100%;
-    box-shadow: 0 24px 64px 0 rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    box-shadow: 0 24px 64px 0 rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-color, rgba(255, 255, 255, 0.05));
     overflow: hidden;
     transform: scale(0.9) translateY(20px);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -888,7 +930,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.06));
 }
 
 .modal-title-area {
@@ -901,7 +943,7 @@ body {
     font-family: 'Outfit', sans-serif;
     font-size: 1.25rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-strong, #ffffff);
 }
 
 .twitter-icon {
@@ -934,8 +976,8 @@ body {
 
 /* Source Update Preview */
 .source-preview {
-    background: rgba(7, 10, 19, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: var(--bg-pre, rgba(7, 10, 19, 0.4));
+    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.04));
     border-radius: var(--radius-md);
     padding: 1rem 1.25rem;
 }
@@ -1014,10 +1056,10 @@ body {
 
 #tweet-textarea {
     width: 100%;
-    background: rgba(7, 10, 19, 0.7);
+    background: var(--bg-code, rgba(7, 10, 19, 0.7));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    color: #ffffff;
+    color: var(--text-primary, #ffffff);
     font-size: 0.95rem;
     padding: 1rem;
     font-family: inherit;
@@ -1029,7 +1071,7 @@ body {
 #tweet-textarea:focus {
     outline: none;
     border-color: #1d9bf0;
-    background: rgba(7, 10, 19, 0.9);
+    background: var(--bg-main, rgba(7, 10, 19, 0.9));
     box-shadow: 0 0 12px 0 rgba(29, 155, 240, 0.15);
 }
 

@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const elements = {
         btnRefresh: document.getElementById('btn-refresh'),
         btnExportCsv: document.getElementById('btn-export-csv'),
+        btnThemeToggle: document.getElementById('btn-theme-toggle'),
+        themeIconDark: document.getElementById('theme-icon-dark'),
+        themeIconLight: document.getElementById('theme-icon-light'),
+        themeToggleText: document.getElementById('theme-toggle-text'),
         spinnerIcon: document.getElementById('spinner-icon'),
         cacheStatusText: document.getElementById('cache-status-text'),
         cacheIndicator: document.getElementById('cache-indicator'),
@@ -683,6 +687,41 @@ document.addEventListener('DOMContentLoaded', () => {
         window.open(intentUrl, '_blank', 'noopener,noreferrer');
         closeTweetModal();
     });
+
+    // --- Theme Toggle Initialization & Listener ---
+    const initTheme = () => {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-theme');
+            elements.themeIconDark.style.display = 'none';
+            elements.themeIconLight.style.display = 'block';
+            elements.themeToggleText.textContent = 'Light Mode';
+        } else {
+            document.body.classList.remove('light-theme');
+            elements.themeIconDark.style.display = 'block';
+            elements.themeIconLight.style.display = 'none';
+            elements.themeToggleText.textContent = 'Dark Mode';
+        }
+    };
+
+    elements.btnThemeToggle.addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-theme');
+        if (isLight) {
+            localStorage.setItem('theme', 'light');
+            elements.themeIconDark.style.display = 'none';
+            elements.themeIconLight.style.display = 'block';
+            elements.themeToggleText.textContent = 'Light Mode';
+            showToast('Switched to Light Mode');
+        } else {
+            localStorage.setItem('theme', 'dark');
+            elements.themeIconDark.style.display = 'block';
+            elements.themeIconLight.style.display = 'none';
+            elements.themeToggleText.textContent = 'Dark Mode';
+            showToast('Switched to Dark Mode');
+        }
+    });
+
+    initTheme();
 
     // Start Fetching Data immediately on Load
     fetchReleaseNotes(false);
