@@ -1,78 +1,125 @@
-# 📰 Workspace Utilities
+# 📰 Workspace Utilities: News & Release Notes Trackers
 
-This workspace contains two useful utility applications: an interactive terminal CLI to browse Google News, and a premium web-based tracker for BigQuery Release Notes.
+This repository contains two core utilities to stay up-to-date with Google ecosystem updates:
+1. **🌐 BigQuery Release Notes Tracker**: An interactive, glassmorphic Flask web app to browse, search, and share Google Cloud BigQuery release updates.
+2. **🗞️ Google News CLI Terminal**: A lightweight Node.js terminal client to read top global and company-specific news.
 
 ---
 
 ## 🌐 BigQuery Release Notes Tracker (Web App)
 
-A premium, interactive single-page web application built with **Python Flask** and plain vanilla **HTML/CSS/JS** that fetches, parses, filters, and shares the official Google Cloud BigQuery Release Notes feed.
+A modern, single-page web application that automatically scrapes, categorizes, and displays Google Cloud BigQuery release notes. It features a dashboard with live metrics, on-the-fly search and category filtering, and an automated Twitter/X template composer for social sharing.
 
-### ✨ Features
-- 🚀 **Atom Feed Parsing**: Fetches release notes directly from `https://docs.cloud.google.com/feeds/bigquery-release-notes.xml` on demand.
-- 📂 **Item Categorization**: Parses daily release logs and splits individual items into distinct cards (e.g., Features, Announcements, Issues, Deprecations, Changes).
-- 📊 **Stats Dashboard**: Displays real-time counts of total updates, features, announcements, and issues in the header.
-- ⚡ **Optimized Caching**: Implements an in-memory cache on the Flask server (10-minute expiry) to prevent feed rate limits, with a manual **Force Refresh** button + spinner.
-- 🔍 **Real-time Search & Filter**: Instantly search titles/dates/content and filter by category tab. Supports keyboard shortcut `/` to focus search.
-- 🐦 **Interactive Twitter/X Composer Modal**: Click "Tweet this" on any release note to open a custom composer. Features:
-  - **4 Custom Templates**: Technical, Hype, Professional, and Brief Summary.
-  - **Auto-formatting & Smart Truncation**: Ensures content plus doc links fit the 280-character limit.
-  - **Copy to Clipboard & Post Web Intent**: Post directly to Twitter or copy text with a single click.
+### ⚡ Key Features
+- **Categorized Releases**: Daily release logs are parsed using `BeautifulSoup` and split by `<h3>` tags into atomic cards (e.g., `Feature`, `Announcement`, `Issue`, `Deprecation`, `Change`).
+- **Live Stats Dashboard**: Renders real-time statistics of total updates, features, announcements, and issues in the header.
+- **Smart Local Search & Filtering**: Real-time substring matching on categories, dates, and description details.
+  - Press `/` to focus the search box.
+  - Filter notes instantly by choosing a category tab.
+- **Optimized Server Caching**: Caches raw feed results in memory (10-minute expiry) to prevent hitting Google Cloud's rate limits. The **Refresh** button bypasses cache with a loading spinner.
+- **Twitter/X Intent Composer Modal**: A custom-made modal to draft posts with one click:
+  - **4 Styles**: Technical (⚡), Hype (🔥), Professional (💼), or Brief Summary (📝).
+  - **Auto-Formatting**: Dynamically injects notes details, relevant hashtags, and reference links.
+  - **Auto-Truncation**: Truncates descriptions to stay within Twitter's 280-character limit.
+  - **Clipboard Support**: One-click text copying with transient toast notifications.
 
-### 🚀 Setup & Run (Web App)
+### 📐 Scraper Flow & Architecture
 
-1. **Install dependencies**:
+```mermaid
+graph TD
+    User([User Browser]) -->|Request| Flask[Flask App: app.py]
+    Flask -->|Fetch API| ApiEndpoint[/api/release-notes]
+    ApiEndpoint -->|Check Cache| CacheTime{Cache Valid?}
+    
+    CacheTime -->|Yes| FetchCache[Serve In-memory JSON]
+    CacheTime -->|No / Forced| FetchFeed[Get Google RSS Feed]
+    
+    FetchFeed -->|Parse XML| ETParser[ElementTree Parser]
+    ETParser -->|Extract Entries| BS4[BeautifulSoup4 Processor]
+    BS4 -->|Split by h3 & Resolve Links| MakeJSON[Format JSON Objects]
+    MakeJSON -->|Update Cache| FetchCache
+    FetchCache -->|JSON Response| JS[static/js/app.js]
+    JS -->|Compile Templates| DOM[Render Interactive Cards]
+```
+
+### 🚀 Setup & Execution
+
+1. **Install Python dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
-2. **Run the Flask application**:
+2. **Start the Flask server**:
    ```bash
    python3 app.py
    ```
-3. **Open in your browser**:
-   Navigate to [http://127.0.0.1:5001](http://127.0.0.1:5001).
+3. **Open the browser**:
+   Navigate to **[http://127.0.0.1:5001](http://127.0.0.1:5001)**.
+
+### 🔌 API Reference
+
+#### `GET /api/release-notes`
+Returns a JSON payload containing the structured array of release note entries.
+
+* **Query Parameters**:
+  * `force` (optional): Set to `true` to bypass cache and fetch directly from Google Cloud servers.
+* **Sample Response**:
+  ```json
+  {
+    "data": [
+      {
+        "id": "https://docs.cloud.google.com/bigquery/docs/release-notes#June_16_2026_0",
+        "date": "June 16, 2026",
+        "updated": "2026-06-16T00:00:00-07:00",
+        "link": "https://docs.cloud.google.com/bigquery/docs/release-notes#June_16_2026",
+        "category": "Announcement",
+        "description_html": "<p>Table Explorer behavior is moving...</p>",
+        "description_text": "Table Explorer behavior is moving to the Reference panel..."
+      }
+    ],
+    "source": "cache",
+    "success": true,
+    "timestamp": 1781662502
+  }
+  ```
 
 ---
 
 ## 🗞️ Google News CLI Terminal
 
-A beautiful, interactive command-line interface to read the latest news from Google News directly inside your terminal. Built with Node.js.
+A Node.js command-line application to read top global stories, corporate search feeds, and custom queries in your terminal.
 
-### ✨ Features
-- 🌈 **Google-branded Interface**: Clean, colorized output matching Google's branding.
-- 🗞️ **Top Stories**: Fetch the latest global and national news headlines.
-- 🏢 **Google-specific News**: Instantly get news related to Google as a company.
-- 🔍 **Custom Topic Search**: Search for articles on any topic or keyword you specify.
-- 🌐 **Open in Browser**: Easily open any selected article in your default browser.
-- 🕹️ **Interactive Prompts**: Sleek menus for easy keyboard navigation.
+### ⚡ Key Features
+- **Visual Branding**: Text colors formatted with Google's red-yellow-blue-green branding.
+- **Top Stories**: Instantly reads top global Google News RSS headlines.
+- **Interactive keyboard selection**: Navigate news menus using arrow keys and select options cleanly.
+- **Browser Launch**: Open articles in your default web browser directly from the terminal.
 
-### 🚀 Setup & Run (CLI Terminal)
+### 🚀 Setup & Execution
 
-1. **Install dependencies**:
+1. **Install Node.js dependencies**:
    ```bash
    npm install
    ```
-2. **Run the application**:
+2. **Run locally**:
    ```bash
    npm start
    # or
    node index.js
    ```
-
-### 🔗 Run Globally
-You can link this project globally to run the `google-news` command from any terminal directory:
-```bash
-npm link
-google-news
-```
+3. **Link CLI globally**:
+   ```bash
+   npm link
+   google-news
+   ```
 
 ---
 
-## 🛠️ Built With
+## 🛠️ Tech Stack & Dependencies
 
-- **Python Flask** - Light, extensible web microframework.
-- **BeautifulSoup4** - Python HTML parsing library.
-- **rss-parser** - Node.js XML RSS parsing.
-- **picocolors** - Minimal and fast terminal styling.
-- **prompts** - Lightweight interactive CLI prompts.
+### Web Application:
+- **Backend**: Python 3, Flask, Requests, BeautifulSoup4
+- **Frontend**: HTML5, Vanilla CSS3 (Custom Glassmorphic Variables), Vanilla Javascript (ES6)
 
+### CLI Terminal:
+- **Runtime**: Node.js
+- **Packages**: `rss-parser`, `picocolors`, `prompts`
