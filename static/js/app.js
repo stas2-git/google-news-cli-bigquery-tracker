@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // DOM Element References
     const elements = {
         btnRefresh: document.getElementById('btn-refresh'),
+        btnExportCsv: document.getElementById('btn-export-csv'),
         spinnerIcon: document.getElementById('spinner-icon'),
         cacheStatusText: document.getElementById('cache-status-text'),
         cacheIndicator: document.getElementById('cache-indicator'),
@@ -328,7 +329,29 @@ document.addEventListener('DOMContentLoaded', () => {
             </svg>
         `;
         
+        const btnCopyContent = document.createElement('button');
+        btnCopyContent.className = 'btn-card-link';
+        btnCopyContent.title = 'Copy release note text to clipboard';
+        btnCopyContent.innerHTML = `
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span class="btn-text">Copy</span>
+        `;
+        btnCopyContent.addEventListener('click', () => {
+            navigator.clipboard.writeText(note.description_text).then(() => {
+                const textSpan = btnCopyContent.querySelector('.btn-text');
+                textSpan.textContent = 'Copied!';
+                showToast('Release note text copied!');
+                setTimeout(() => {
+                    textSpan.textContent = 'Copy';
+                }, 2000);
+            });
+        });
+        
         footer.appendChild(btnLink);
+        footer.appendChild(btnCopyContent);
         footer.appendChild(btnTweet);
         card.appendChild(footer);
 
@@ -471,6 +494,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // Refresh Button Click
     elements.btnRefresh.addEventListener('click', () => {
         fetchReleaseNotes(true);
+    });
+
+    // Export CSV Button Click
+    elements.btnExportCsv.addEventListener('click', () => {
+        if (!filteredNotes || filteredNotes.length === 0) {
+            showToast('No notes available to export!');
+            return;
+        }
+
+        const escapeCSV = (text) => {
+            if (!text) return '';
+            // Escape double quotes by doubling them, and wrap cell in double quotes
+            return '"' + text.replace(/"/g, '""') + '"';
+        };
+
+        const csvRows = [
+            ["Date", "Category", "Link", "Description"].map(escapeCSV).join(",")
+        ];
+
+        filteredNotes.forEach(note => {
+            csvRows.push([
+                note.date,
+                note.category,
+                note.link,
+                note.description_text
+            ].map(escapeCSV).join(","));
+        });
+
+        const csvContent = csvRows.join("\r\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        
+        const safeCategory = activeCategory.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        const timestamp = new Date().toISOString().slice(0, 10);
+        link.setAttribute("download", `bigquery_releases_${safeCategory}_${timestamp}.csv`);
+        
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('CSV export successful!');
     });
 
     // Retry Button Click (in error state)
